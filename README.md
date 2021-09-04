@@ -5,5 +5,5 @@
 - Efficient Semantic Video Segmentation with Per-frame Inference (ECCV 2020) [[code](https://github.com/irfanICMLL/ETC-Real-time-Per-frame-Semantic-video-segmentation)] [[paper](https://arxiv.org/pdf/2002.11433.pdf)]
 
 ### Efficient Network Architecture
-- DDRNet-23-Slim(Deep Dual-resolution Networks for Real-time and Accurate Semantic Segmentation of Road Scenes) (IEEE 2021) [[code](https://github.com/ydhongHIT/DDRNet)] [[paper](https://arxiv.org/pdf/2101.06085.pdf)]
-
+- DDRNet-23-Slim (Deep Dual-resolution Networks for Real-time and Accurate Semantic Segmentation of Road Scenes) (IEEE 2021) [[code](https://github.com/ydhongHIT/DDRNet)] [[paper](https://arxiv.org/pdf/2101.06085.pdf)]
+- STDC (Rethinking BiSeNet For Real-time Semantic Segmentation) (CVPR 2021) [[code](https://github.com/MichaelFan01/STDC-Seg)] [[paper](https://openaccess.thecvf.com/content/CVPR2021/papers/Fan_Rethinking_BiSeNet_for_Real-Time_Semantic_Segmentation_CVPR_2021_paper.pdf)]
