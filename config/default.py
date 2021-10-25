@@ -26,10 +26,10 @@ _C.CUDNN.ENABLED = True
 
 # common params for NETWORK
 _C.MODEL = CN()
-_C.MODEL.NAME = 'seg_hrnet'
+_C.MODEL.NAME = 'hrnet_ocr_seg'
 _C.MODEL.PRETRAINED = ''
 _C.MODEL.ALIGN_CORNERS = True
-_C.MODEL.NUM_OUTPUTS = 1
+_C.MODEL.NUM_OUTPUTS = 2
 _C.MODEL.EXTRA = CN(new_allowed=True)
 
 
@@ -85,12 +85,12 @@ _C.TRAIN.NESTEROV = False
 _C.TRAIN.IGNORE_LABEL = -1
 
 _C.TRAIN.BEGIN_EPOCH = 0
-_C.TRAIN.END_EPOCH = 484
+_C.TRAIN.END_EPOCH = 400
 _C.TRAIN.EXTRA_EPOCH = 0
 
 _C.TRAIN.RESUME = False
 
-_C.TRAIN.BATCH_SIZE_PER_GPU = 32
+_C.TRAIN.BATCH_SIZE_PER_GPU = 4
 _C.TRAIN.SHUFFLE = True
 # only using some training samples
 _C.TRAIN.NUM_SAMPLES = 0
@@ -101,7 +101,7 @@ _C.TEST = CN()
 _C.TEST.IMAGE_SIZE = [2048, 1024]  # width * height
 _C.TEST.BASE_SIZE = 2048
 
-_C.TEST.BATCH_SIZE_PER_GPU = 32
+_C.TEST.BATCH_SIZE_PER_GPU = 2
 # only testing some samples
 _C.TEST.NUM_SAMPLES = 0
 
