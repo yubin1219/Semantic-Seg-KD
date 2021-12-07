@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
-import logging
 
 class CrossEntropy(nn.Module):
     def __init__(self, args_s, ignore_label=255, weight=None):
