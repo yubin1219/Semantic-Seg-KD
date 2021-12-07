@@ -1,4 +1,5 @@
 from argparse import Namespace
+import os
 import random
 import numpy as np
 import torch
@@ -8,9 +9,6 @@ import torch.backends.cudnn as cudnn
 
 from datasets.cityscapes import Cityscapes
 from models.hrnet_ocr_seg import get_seg_model
-from utils.utils import AverageMeter
-from utils.utils import get_confusion_matrix
-from utils.utils import adjust_learning_rate
 
 def test(args_s, sv_dir=''):
   random.seed(args_s.seed)
