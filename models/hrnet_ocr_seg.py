@@ -3,7 +3,6 @@ from __future__ import division
 from __future__ import print_function
 
 import os
-import logging
 import functools
 
 import numpy as np
@@ -15,7 +14,6 @@ import torch.nn.functional as F
 
 ALIGN_CORNERS = True
 BN_MOMENTUM = 0.1
-logger = logging.getLogger(__name__)
 relu_inplace = True
 BatchNorm2d_class = BatchNorm2d = torch.nn.BatchNorm2d
 
@@ -274,19 +272,19 @@ class HighResolutionModule(nn.Module):
         if num_branches != len(num_blocks):
             error_msg = 'NUM_BRANCHES({}) <> NUM_BLOCKS({})'.format(
                 num_branches, len(num_blocks))
-            logger.error(error_msg)
+
             raise ValueError(error_msg)
 
         if num_branches != len(num_channels):
             error_msg = 'NUM_BRANCHES({}) <> NUM_CHANNELS({})'.format(
                 num_branches, len(num_channels))
-            logger.error(error_msg)
+
             raise ValueError(error_msg)
 
         if num_branches != len(num_inchannels):
             error_msg = 'NUM_BRANCHES({}) <> NUM_INCHANNELS({})'.format(
                 num_branches, len(num_inchannels))
-            logger.error(error_msg)
+
             raise ValueError(error_msg)
 
     def _make_one_branch(self, branch_index, block, num_blocks, num_channels,
@@ -634,7 +632,6 @@ class HighResolutionNet(nn.Module):
         return [out_aux, out, feats]
 
     def init_weights(self, pretrained='',):
-        logger.info('=> init weights from normal distribution')
         for name, m in self.named_modules():
             if any(part in name for part in {'cls', 'aux', 'ocr'}):
                 # print('skipped', name)
@@ -646,7 +643,6 @@ class HighResolutionNet(nn.Module):
                 nn.init.constant_(m.bias, 0)
         if os.path.isfile(pretrained):
             pretrained_dict = torch.load(pretrained, map_location = device)
-            logger.info('=> loading pretrained model {}'.format(pretrained))
             model_dict = self.state_dict()
             pretrained_dict = {k.replace('last_layer', 'aux_head').replace('model.', ''): v for k, v in pretrained_dict.items()}  
             print(set(model_dict) - set(pretrained_dict))            
@@ -662,6 +658,6 @@ class HighResolutionNet(nn.Module):
 
 def get_seg_model(cfg, **kwargs):
     model = HighResolutionNet(cfg, **kwargs)
-    #model.init_weights(cfg.MODEL.PRETRAINED)
+    model.init_weights(cfg.MODEL.PRETRAINED)
 
     return model
