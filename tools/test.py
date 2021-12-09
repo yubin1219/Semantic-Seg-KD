@@ -81,7 +81,7 @@ def test(args_s, sv_dir=''):
                 255)
 
 
-            sv_path = os.path.join(sv_dir, 'test_results')
+            sv_path = os.path.join(sv_dir, 'val_results')
             if not os.path.exists(sv_path):
               os.mkdir(sv_path)
             test_dataset.save_pred(pred, sv_path, name)
@@ -101,9 +101,8 @@ def test(args_s, sv_dir=''):
     IoU_array = (tp / np.maximum(1.0, pos + res - tp))
     mean_IoU = IoU_array.mean()
 
-    print('MeanIU: {: 4.4f}, Pixel_Acc: {: 4.4f}, \
-            Mean_Acc: {: 4.4f}, Class IoU: '.format(mean_IoU, 
-            pixel_acc, mean_acc))
+    print('MeanIU: {: 4.4f}, Pixel_Acc: {: 4.4f}, Mean_Acc: {: 4.4f},\nClass IoU:'.format(mean_IoU, pixel_acc, mean_acc))
+    print(IoU_array)
 
   
   if 'test' in args_s.DATASET.TEST_SET:
