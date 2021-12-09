@@ -99,7 +99,6 @@ class Cityscapes(BaseDataset):
 
         image = cv2.imread(os.path.join(self.root, item["img"]),
                            cv2.IMREAD_COLOR)
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         size = image.shape
 
         if 'test' in self.list_path:
@@ -197,4 +196,3 @@ class Cityscapes(BaseDataset):
             save_img = Image.fromarray(pred)
             save_img.putpalette(palette)
             save_img.save(os.path.join(sv_path, name[i]+'.png'))
-            save_img.show()
