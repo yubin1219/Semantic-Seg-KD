@@ -51,8 +51,8 @@ def test(args_s, sv_dir=''):
                 args_s,
                 model_S,
                 image,
-                #scales=config.TEST.SCALE_LIST,
-                #flip=config.TEST.FLIP_TEST
+                scales=config.TEST.SCALE_LIST,
+                flip=config.TEST.FLIP_TEST
                 )
 
       if pred.size()[-2] != size[0] or pred.size()[-1] != size[1]:
@@ -113,7 +113,7 @@ if __name__ == '__main__':
                    'KEY_CHANNELS': 256,
                    'MID_CHANNELS': 512,
                    'SCALE': 1},
-           'PRETRAINED': 'pretrained_models/best_student.pth'}),
+           'PRETRAINED': 'pretrained_models/best_model.pth'}),
          'OUTPUT_DIR': 'output',
          'PIN_MEMORY': True,
          'PRINT_FREQ': 10,
@@ -124,7 +124,7 @@ if __name__ == '__main__':
           'IMAGE_SIZE': [2048, 1024],
           'MODEL_FILE': '',
           'MULTI_SCALE': False,
-          'NUM_SAMPLES': 200,
+          'NUM_SAMPLES': None,
           'OUTPUT_INDEX': -1,
           'SCALE_LIST': [0.5, 0.75, 1.0, 1.25, 1.5, 1.75]}),
          'WORKERS': 1}
