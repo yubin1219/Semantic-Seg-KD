@@ -80,7 +80,8 @@ def test(args_s, sv_dir=''):
                 args_s.DATASET.NUM_CLASSES,
                 255)
 
-
+            if not os.path.exists(sv_dir):
+              os.mkdir(sv_dir)
             sv_path = os.path.join(sv_dir, 'val_results')
             if not os.path.exists(sv_path):
               os.mkdir(sv_path)
@@ -121,7 +122,8 @@ def test(args_s, sv_dir=''):
         if pred.size()[-2] != size[0] or pred.size()[-1] != size[1]:
           pred = F.interpolate(pred, size[-2:],mode='bilinear', align_corners=args_s.MODEL.ALIGN_CORNERS)
         
-
+        if not os.path.exists(sv_dir):
+          os.mkdir(sv_dir)
         sv_path = os.path.join(sv_dir, 'test_results')
         if not os.path.exists(sv_path):
           os.mkdir(sv_path)
