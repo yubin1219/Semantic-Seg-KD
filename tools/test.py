@@ -9,6 +9,7 @@ import torch.backends.cudnn as cudnn
 
 from datasets.cityscapes import Cityscapes
 from models.hrnet_ocr_seg import get_seg_model
+from utils.utils import get_confusion_matrix
 
 def test(args_s, sv_dir=''):
   random.seed(args_s.seed)
@@ -43,11 +44,73 @@ def test(args_s, sv_dir=''):
         shuffle=False)
   
   model_S.eval()
-  with torch.no_grad():
-    for _, batch in enumerate(tqdm(testloader)):
-      image, size, name = batch
-      size = size[0]
-      pred = test_dataset.multi_scale_inference(
+  
+  if 'val' in config.DATASET.TEST_SET:
+    confusion_matrix = np.zeros(
+        (config.DATASET.NUM_CLASSES, config.DATASET.NUM_CLASSES))
+    with torch.no_grad():
+        for index, batch in enumerate(tqdm(testloader)):
+            image, label, _, name, *border_padding = batch
+            size = label.size()
+            pred = test_dataset.multi_scale_inference(
+                config,
+                model,
+                image
+                scales=config.TEST.SCALE_LIST,
+                flip=config.TEST.FLIP_TEST
+                )
+
+            if len(border_padding) > 0:
+                border_padding = border_padding[0]
+                pred = pred[:, :, 0:pred.size(2) - border_padding[0], 0:pred.size(3) - border_padding[1]]
+
+            if pred.size()[-2] != size[-2] or pred.size()[-1] != size[-1]:
+                pred = F.interpolate(
+                    pred, size[-2:],
+                    mode='bilinear', align_corners=config.MODEL.ALIGN_CORNERS
+                )
+
+            confusion_matrix += get_confusion_matrix(
+                label,
+                pred,
+                size,
+                config.DATASET.NUM_CLASSES,
+                config.TRAIN.IGNORE_LABEL)
+
+
+              sv_path = os.path.join(sv_dir, 'test_results')
+              if not os.path.exists(sv_path):
+                os.mkdir(sv_path)
+              test_dataset.save_pred(pred, sv_path, name)
+
+            if index % 100 == 0:
+                logging.info('processing: %d images' % index)
+                pos = confusion_matrix.sum(1)
+                res = confusion_matrix.sum(0)
+                tp = np.diag(confusion_matrix)
+                IoU_array = (tp / np.maximum(1.0, pos + res - tp))
+                mean_IoU = IoU_array.mean()
+                logging.info('mIoU: %.4f' % (mean_IoU))
+
+    pos = confusion_matrix.sum(1)
+    res = confusion_matrix.sum(0)
+    tp = np.diag(confusion_matrix)
+    pixel_acc = tp.sum()/pos.sum()
+    mean_acc = (tp/np.maximum(1.0, pos)).mean()
+    IoU_array = (tp / np.maximum(1.0, pos + res - tp))
+    mean_IoU = IoU_array.mean()
+
+    print('MeanIU: {: 4.4f}, Pixel_Acc: {: 4.4f}, \
+            Mean_Acc: {: 4.4f}, Class IoU: '.format(mean_IoU, 
+            pixel_acc, mean_acc))
+
+  
+  if 'test' in config.DATASET.TEST_SET:
+    with torch.no_grad():
+      for _, batch in enumerate(tqdm(testloader)):
+        image, size, name = batch
+        size = size[0]
+        pred = test_dataset.multi_scale_inference(
                 args_s,
                 model_S,
                 image,
@@ -55,14 +118,14 @@ def test(args_s, sv_dir=''):
                 flip=config.TEST.FLIP_TEST
                 )
 
-      if pred.size()[-2] != size[0] or pred.size()[-1] != size[1]:
-        pred = F.interpolate(pred, size[-2:],mode='bilinear', align_corners=config.MODEL.ALIGN_CORNERS)
+        if pred.size()[-2] != size[0] or pred.size()[-1] != size[1]:
+          pred = F.interpolate(pred, size[-2:],mode='bilinear', align_corners=config.MODEL.ALIGN_CORNERS)
         
 
-      sv_path = os.path.join(sv_dir, 'test_results')
-      if not os.path.exists(sv_path):
-        os.mkdir(sv_path)
-      test_dataset.save_pred(pred, sv_path, name)
+        sv_path = os.path.join(sv_dir, 'test_results')
+        if not os.path.exists(sv_path):
+          os.mkdir(sv_path)
+        test_dataset.save_pred(pred, sv_path, name)
 
 
 if __name__ == '__main__':
