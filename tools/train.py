@@ -54,7 +54,7 @@ batch_size = args_s.TRAIN.BATCH_SIZE_PER_GPU
 
 # prepare data
 crop_size = (args_s.TRAIN.IMAGE_SIZE[1], args_s.TRAIN.IMAGE_SIZE[0])
-train_dataset = Cityscapes(args_s,
+train_dataset = Cityscapes(
                         root=args_s.DATASET.ROOT,
                         list_path=args_s.DATASET.TRAIN_SET,
                         num_classes=args_s.DATASET.NUM_CLASSES,
@@ -71,7 +71,7 @@ trainloader = torch.utils.data.DataLoader(train_dataset,
 
 extra_epoch_iters = 0
 if args_s.DATASET.EXTRA_TRAIN_SET:
-  extra_train_dataset = Cityscapes(args_s,
+  extra_train_dataset = Cityscapes(
                     root=args_s.DATASET.ROOT,
                     list_path=args_s.DATASET.EXTRA_TRAIN_SET,
                     num_classes=args_s.DATASET.NUM_CLASSES,
@@ -92,7 +92,7 @@ if args_s.DATASET.EXTRA_TRAIN_SET:
                         args_s.TRAIN.BATCH_SIZE_PER_GPU)
   
 test_size = (args_s.TEST.IMAGE_SIZE[1], args_s.TEST.IMAGE_SIZE[0])
-test_dataset = Cityscapes(args_s, root=args_s.DATASET.ROOT,
+test_dataset = Cityscapes(root=args_s.DATASET.ROOT,
                         num_samples=200,
                         list_path=args_s.DATASET.TEST_SET,
                         num_classes=args_s.DATASET.NUM_CLASSES,
