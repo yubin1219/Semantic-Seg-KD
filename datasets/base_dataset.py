@@ -9,6 +9,8 @@ from torch.utils import data
 
 from config import config
 
+device = "cuda" if torch.cuda.is_available() else 'cpu'
+
 class BaseDataset(data.Dataset):
     def __init__(self,
                  ignore_label=-1,
