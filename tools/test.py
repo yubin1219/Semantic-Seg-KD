@@ -75,7 +75,7 @@ def test(args_s, sv_dir=''):
                 pred,
                 size,
                 config.DATASET.NUM_CLASSES,
-                config.TRAIN.IGNORE_LABEL)
+                255)
 
 
               sv_path = os.path.join(sv_dir, 'test_results')
