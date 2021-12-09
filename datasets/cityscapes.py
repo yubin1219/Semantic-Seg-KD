@@ -9,6 +9,8 @@ from torch.nn import functional as F
 
 from .base_dataset import BaseDataset
 
+device = "cuda" if torch.cuda.is_available() else 'cpu'
+
 class Cityscapes(BaseDataset):
     def __init__(self, 
                  root, 
