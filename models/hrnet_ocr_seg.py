@@ -642,6 +642,7 @@ class HighResolutionNet(nn.Module):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
         if os.path.isfile(pretrained):
+            device = "cuda" if torch.cuda.is_available() else 'cpu'
             pretrained_dict = torch.load(pretrained, map_location = device)
             model_dict = self.state_dict()
             pretrained_dict = {k.replace('last_layer', 'aux_head').replace('model.', ''): v for k, v in pretrained_dict.items()}  
