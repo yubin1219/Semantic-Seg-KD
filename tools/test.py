@@ -45,15 +45,15 @@ def test(args_s, sv_dir=''):
   
   model_S.eval()
   
-  if 'val' in config.DATASET.TEST_SET:
+  if 'val' in args_s.DATASET.TEST_SET:
     confusion_matrix = np.zeros(
-        (config.DATASET.NUM_CLASSES, config.DATASET.NUM_CLASSES))
+        (args_s.DATASET.NUM_CLASSES, args_s.DATASET.NUM_CLASSES))
     with torch.no_grad():
         for index, batch in enumerate(tqdm(testloader)):
             image, label, _, name, *border_padding = batch
             size = label.size()
             pred = test_dataset.multi_scale_inference(
-                config,
+                args_s,
                 model,
                 image,
                 scales=args_s.TEST.SCALE_LIST,
@@ -67,7 +67,7 @@ def test(args_s, sv_dir=''):
             if pred.size()[-2] != size[-2] or pred.size()[-1] != size[-1]:
                 pred = F.interpolate(
                     pred, size[-2:],
-                    mode='bilinear', align_corners=config.MODEL.ALIGN_CORNERS
+                    mode='bilinear', align_corners=args_s.MODEL.ALIGN_CORNERS
                 )
 
             confusion_matrix += get_confusion_matrix(
@@ -105,7 +105,7 @@ def test(args_s, sv_dir=''):
             pixel_acc, mean_acc))
 
   
-  if 'test' in config.DATASET.TEST_SET:
+  if 'test' in args_s.DATASET.TEST_SET:
     with torch.no_grad():
       for _, batch in enumerate(tqdm(testloader)):
         image, size, name = batch
@@ -119,7 +119,7 @@ def test(args_s, sv_dir=''):
                 )
 
         if pred.size()[-2] != size[0] or pred.size()[-1] != size[1]:
-          pred = F.interpolate(pred, size[-2:],mode='bilinear', align_corners=config.MODEL.ALIGN_CORNERS)
+          pred = F.interpolate(pred, size[-2:],mode='bilinear', align_corners=args_s.MODEL.ALIGN_CORNERS)
         
 
         sv_path = os.path.join(sv_dir, 'test_results')
