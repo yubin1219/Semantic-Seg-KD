@@ -55,7 +55,7 @@ def test(args_s, sv_dir=''):
             pred = test_dataset.multi_scale_inference(
                 config,
                 model,
-                image
+                image,
                 scales=args_s.TEST.SCALE_LIST,
                 flip=args_s.TEST.FLIP_TEST
                 )
