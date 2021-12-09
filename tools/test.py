@@ -57,7 +57,7 @@ def test(args_s, sv_dir=''):
             size = label.size()
             pred = test_dataset.multi_scale_inference(
                 args_s,
-                model,
+                model_S,
                 image,
                 scales=args_s.TEST.SCALE_LIST,
                 flip=args_s.TEST.FLIP_TEST
