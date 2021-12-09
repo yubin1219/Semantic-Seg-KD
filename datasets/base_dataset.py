@@ -9,6 +9,7 @@ from torch.utils import data
 
 class BaseDataset(data.Dataset):
     def __init__(self,
+                 args,
                  ignore_label=-1,
                  base_size=2048,
                  crop_size=(512, 1024),
@@ -130,11 +131,11 @@ class BaseDataset(data.Dataset):
                 return image  
 
     def random_brightness(self, img):
-        if not args_s.TRAIN.RANDOM_BRIGHTNESS:
+        if not args.TRAIN.RANDOM_BRIGHTNESS:
             return img
         if random.random() < 0.5:
             return img
-        self.shift_value = args_s.TRAIN.RANDOM_BRIGHTNESS_SHIFT_VALUE
+        self.shift_value = args.TRAIN.RANDOM_BRIGHTNESS_SHIFT_VALUE
         img = img.astype(np.float32)
         shift = random.randint(-self.shift_value, self.shift_value)
         img[:, :, :] += shift
