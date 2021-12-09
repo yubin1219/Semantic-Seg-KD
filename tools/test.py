@@ -182,7 +182,7 @@ if __name__ == '__main__':
          'PRINT_FREQ': 10,
          'RANK': 0,
          'TEST':CfgNode( {'BASE_SIZE': 2048,
-          'BATCH_SIZE_PER_GPU': 2,
+          'BATCH_SIZE_PER_GPU': 1,
           'FLIP_TEST': True,
           'IMAGE_SIZE': [2048, 1024],
           'MODEL_FILE': '',
