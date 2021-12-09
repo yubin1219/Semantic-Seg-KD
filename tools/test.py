@@ -87,13 +87,11 @@ def test(args_s, sv_dir=''):
             test_dataset.save_pred(pred, sv_path, name)
 
             if index % 100 == 0:
-                logging.info('processing: %d images' % index)
                 pos = confusion_matrix.sum(1)
                 res = confusion_matrix.sum(0)
                 tp = np.diag(confusion_matrix)
                 IoU_array = (tp / np.maximum(1.0, pos + res - tp))
                 mean_IoU = IoU_array.mean()
-                logging.info('mIoU: %.4f' % (mean_IoU))
 
     pos = confusion_matrix.sum(1)
     res = confusion_matrix.sum(0)
