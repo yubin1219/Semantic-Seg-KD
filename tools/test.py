@@ -29,7 +29,7 @@ def test(args_s, sv_dir=''):
   model_S = get_seg_model(args_s).to(device)
   
   test_size = (args_s.TEST.IMAGE_SIZE[1], args_s.TEST.IMAGE_SIZE[0])
-  test_dataset = Cityscapes(args_s,
+  test_dataset = Cityscapes(
                             root=args_s.DATASET.ROOT,
                             num_samples=args_s.TEST.NUM_SAMPLES,
                             list_path=args_s.DATASET.TEST_SET,
