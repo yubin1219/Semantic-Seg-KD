@@ -56,8 +56,8 @@ def test(args_s, sv_dir=''):
                 config,
                 model,
                 image
-                scales=config.TEST.SCALE_LIST,
-                flip=config.TEST.FLIP_TEST
+                scales=args_s.TEST.SCALE_LIST,
+                flip=args_s.TEST.FLIP_TEST
                 )
 
             if len(border_padding) > 0:
@@ -74,7 +74,7 @@ def test(args_s, sv_dir=''):
                 label,
                 pred,
                 size,
-                config.DATASET.NUM_CLASSES,
+                args_s.DATASET.NUM_CLASSES,
                 255)
 
 
@@ -114,8 +114,8 @@ def test(args_s, sv_dir=''):
                 args_s,
                 model_S,
                 image,
-                scales=config.TEST.SCALE_LIST,
-                flip=config.TEST.FLIP_TEST
+                scales=args_s.TEST.SCALE_LIST,
+                flip=args_s.TEST.FLIP_TEST
                 )
 
         if pred.size()[-2] != size[0] or pred.size()[-1] != size[1]:
