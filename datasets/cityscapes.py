@@ -196,3 +196,4 @@ class Cityscapes(BaseDataset):
             save_img = Image.fromarray(pred)
             save_img.putpalette(palette)
             save_img.save(os.path.join(sv_path, name[i]+'.png'))
+            save_img.show()
