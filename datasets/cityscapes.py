@@ -42,7 +42,10 @@ class Cityscapes(BaseDataset):
         self.files = self.read_files()
         if num_samples:
             self.files = self.files[:num_samples]
-
+            
+        self.PALETTE = torch.tensor([[128, 64, 128], [244, 35, 232], [70, 70, 70], [102, 102, 156], [190, 153, 153], [153, 153, 153], [250, 170, 30], [220, 220, 0], [107, 142, 35], 
+                [152, 251, 152], [70, 130, 180], [220, 20, 60], [255, 0, 0], [0, 0, 142], [0, 0, 70], [0, 60, 100], [0, 80, 100], [0, 0, 230], [119, 11, 32]])
+        
         self.label_mapping = {-1: ignore_label, 0: ignore_label, 
                               1: ignore_label, 2: ignore_label, 
                               3: ignore_label, 4: ignore_label, 
@@ -172,27 +175,12 @@ class Cityscapes(BaseDataset):
             final_pred += preds
         return final_pred
 
-    def get_palette(self, n):
-        palette = [0] * (n * 3)
-        for j in range(0, n):
-            lab = j
-            palette[j * 3 + 0] = 0
-            palette[j * 3 + 1] = 0
-            palette[j * 3 + 2] = 0
-            i = 0
-            while lab:
-                palette[j * 3 + 0] |= (((lab >> 0) & 1) << (7 - i))
-                palette[j * 3 + 1] |= (((lab >> 1) & 1) << (7 - i))
-                palette[j * 3 + 2] |= (((lab >> 2) & 1) << (7 - i))
-                i += 1
-                lab >>= 3
-        return palette
-
     def save_pred(self, preds, sv_path, name):
-        palette = self.get_palette(256)
+        img = np.zeros((preds.size(2),preds.size(3),3))
         preds = np.asarray(np.argmax(preds.cpu(), axis=1), dtype=np.uint8)
         for i in range(preds.shape[0]):
-            pred = self.convert_label(preds[i], inverse=True)
-            save_img = Image.fromarray(pred)
-            save_img.putpalette(palette)
+            pred = preds[i]
+            palette = self.PALETTE.numpy()
+            img=palette[pred]
+            save_img = Image.fromarray(img.astype(np.uint8))          
             save_img.save(os.path.join(sv_path, name[i]+'.png'))
