@@ -184,3 +184,12 @@ class Cityscapes(BaseDataset):
             img=palette[pred]
             save_img = Image.fromarray(img.astype(np.uint8))          
             save_img.save(os.path.join(sv_path, name[i]+'.png'))
+
+    def save_id(self, preds, sv_path, name):
+        preds = np.asarray(np.argmax(preds.cpu(), axis=1), dtype=np.uint8)
+        for i in range(preds.shape[0]):
+            pred = self.convert_label(preds[i], inverse=True)
+            save_img = Image.fromarray(pred)
+            lbname = name[i].split('_')
+            fname=lbname[0]+'_'+lbname[1]+'_'+lbname[2]+'.png'
+            save_img.save(os.path.join(sv_path, fname))
