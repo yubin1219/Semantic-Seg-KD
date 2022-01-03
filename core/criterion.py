@@ -12,18 +12,51 @@ class CrossEntropy(nn.Module):
         ph, pw = score.size(2), score.size(3)
         h, w = target.size(1), target.size(2)
         if ph != h or pw != w:
-            score = F.interpolate(input=score, size=(
-                h, w), mode='bilinear', align_corners=args_s.MODEL.ALIGN_CORNERS)
+            score = F.interpolate(input=score, size=(h, w), mode='bilinear', align_corners=args_s.MODEL.ALIGN_CORNERS)
 
         loss = self.criterion(score, target)
 
         return loss
     
     def forward(self, score, target):
-      weights = args_s.LOSS.BALANCE_WEIGHTS
+        weights = args_s.LOSS.BALANCE_WEIGHTS
 
-      return sum([w * self._forward(x, target) for (w, x) in zip(weights, score)])
+        return sum([w * self._forward(x, target) for (w, x) in zip(weights, score)])
+
+def CAM(x):
+  out = F.normalize(x.pow(2).reshape(19,-1),dim=1)
+  return out
+
+class CriterionCAT(nn.Module):
+  def __init__(self):
+    super(CriterionCAT, self).__init__()
+    self.CAM = CAM
     
+  def forward(self, fs, ft, ot_t): 
+    n = ft.size(0)
+    m_t = F.softmax(ot_t,dim=1)
+    m_t[m_t > 0.5] = 1
+    norm_t = F.normalize(ft.pow(2).reshape(n,512,-1),dim=2).reshape(n,512,128,256)
+
+    map_list_T=[]
+    map_list_S=[]
+
+    for i in range(19):
+      mask_t = m_t[:,i,:,:].unsqueeze(1)   
+      weight_t = torch.nn.AdaptiveAvgPool2d(1)(norm_t * mask_t) + 1e-8   # n x 512 x 1 x 1
+      wt_max = weight_t.max(1)[0].unsqueeze(1)
+      w_t = weight_t / wt_max    # 0 ~ 1
+
+      att_t = (w_t * ft).mean(1).unsqueeze(1)
+      att_s = (w_t * fs).mean(1).unsqueeze(1)
+      map_list_T.append(att_t)
+      map_list_S.append(att_s)
+
+    out_t = torch.cat(map_list_T,dim=1)
+    out_s = torch.cat(map_list_S,dim=1)
+    loss = sum([(self.CAM(x)-self.CAM(y)).pow(2).sum() for x,y in zip(out_s, out_t)]) / n
+    return loss
+
 class CriterionKD(nn.Module):
     '''
     knowledge distillation loss
@@ -47,7 +80,7 @@ class CriterionKD(nn.Module):
         
         return loss * self.temperature * self.temperature
       
-  class ChannelNorm(nn.Module):
+class ChannelNorm(nn.Module):
     def __init__(self):
         super(ChannelNorm, self).__init__()
     def forward(self,featmap):
@@ -101,3 +134,16 @@ class CriterionCWD(nn.Module):
             loss /= n * h * w
 
         return loss * (self.temperature**2)
+
+def at(x):
+  return F.normalize(x.pow(2).mean(0).reshape(1,-1), dim= 1)
+
+class CriterionAT(nn.Module):
+  def __init__(self):
+    super(CriterionAT, self).__init__()
+    self.at = at
+    
+  def forward(self, fs, ft):
+    n = ft.size(0)
+    loss = sum([(self.at(x)-self.at(y)).pow(2).sum() for x,y in zip(fs, ft)]) / n
+    return loss    
