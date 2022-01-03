@@ -16,7 +16,7 @@ from utils.utils import adjust_learning_rate
 
 def train(config, epoch, num_epoch, epoch_iters, base_lr,
           num_iters, trainloader, optimizer, model_S, model_T, 
-          criterion_dsn, criterion_kd, criterion_cwd, writer_dict):
+          criterion_dsn, criterion_cat, writer_dict):
     # Training
     model_S.train()
 
@@ -38,14 +38,15 @@ def train(config, epoch, num_epoch, epoch_iters, base_lr,
         with torch.no_grad():
           output_t = model_T(images)
 
-        loss_dsn = criterion_dsn(output_s[:2], labels)
-        loss_kd = criterion_kd(output_s[1], output_t[1])
-        #loss_pix = criterion_pix(output_s[1], output_t[1])
-        #loss_at = 10 * criterion_at(output_s[1], output_t[1])
-        loss_cwd_feat = 50 * criterion_cwd(output_s[2], output_t[2])
-        loss_cwd_logit = 3 * criterion_cwd(output_s[1], output_t[1])
+        loss_dsn = criterion_dsn(output_s[:2], labels.detach())
+        loss_cat_feat = 0.4 * criterion_cat(output_s[2], output_t[2].detach(), output_t[1].detach())
+        #loss_at_feat = 8 * criterion_at(output_s[2], output_t[2].detach())
+        #loss_kd = 0.8 * criterion_kd(output_s[1], output_t[1].detach())
 
-        loss = loss_dsn + loss_cwd_feat + loss_cwd_logit + loss_kd
+        #loss_cwd_feat = 50 * criterion_cwd(output_s[2], output_t[2].detach())
+        #loss_cwd_logit = 4 * criterion_cwd(output_s[1], output_t[1].detach())
+
+        loss = loss_dsn + loss_cat_feat
 
         loss.backward()
         optimizer.step()
@@ -68,7 +69,7 @@ def train(config, epoch, num_epoch, epoch_iters, base_lr,
                       epoch, num_epoch, i_iter, epoch_iters,
                       batch_time.average(), [x['lr'] for x in optimizer.param_groups], ave_loss.average())
             logging.info(msg)
-            msg2 = "loss_dsn: {:.4f}, loss_kd: {:.4f}, loss_cwd_feat: {:.4f}, loss_cwd_logit: {:.4f}".format(loss_dsn, loss_kd, loss_cwd_feat,loss_cwd_logit)
+            msg2 = "loss_dsn: {:.4f}, loss_cat_feat: {:.4f}".format(loss_dsn, loss_cat_feat)
             logging.info(msg2)
 
     writer.add_scalar('train_loss', ave_loss.average(), global_steps)
