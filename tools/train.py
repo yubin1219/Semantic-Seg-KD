@@ -21,7 +21,7 @@ import _init_paths
 import models
 import datasets
 from config import config
-from core.criterion import CrossEntropy, CriterionKD, CriterionCWD
+from core.criterion import CrossEntropy, CriterionKD, CriterionCAT
 from core.function import train, validate
 from utils.modelsummary import get_model_summary
 from utils.utils import create_logger
@@ -93,11 +93,11 @@ if args_s.DATASET.EXTRA_TRAIN_SET:
   
 test_size = (args_s.TEST.IMAGE_SIZE[1], args_s.TEST.IMAGE_SIZE[0])
 test_dataset = Cityscapes(root=args_s.DATASET.ROOT,
-                        num_samples=200,
+                        num_samples=args_s.TEST.NUM_SAMPLES,
                         list_path=args_s.DATASET.TEST_SET,
                         num_classes=args_s.DATASET.NUM_CLASSES,
                         multi_scale=False,
-                        flip=True,
+                        flip=False,
                         ignore_label=args_s.TRAIN.IGNORE_LABEL,
                         base_size=args_s.TEST.BASE_SIZE,
                         crop_size=test_size,
@@ -120,3 +120,65 @@ optimizer = torch.optim.SGD([{'params': filter(lambda p: p.requires_grad, model_
                                 weight_decay=args_s.TRAIN.WD,
                                 nesterov=args_s.TRAIN.NESTEROV
                                 )
+
+epoch_iters = np.int(train_dataset.__len__() / args_s.TRAIN.BATCH_SIZE_PER_GPU)
+        
+best_mIoU = 0
+last_epoch = 0
+
+checkpoint = torch.load('pretrained_models/hrnet_ocr_cs_8162_torch11.pth', map_location=device)
+model_T.load_state_dict({k.replace('model.', ''): v for k, v in checkpoint.items() if k.startswith('model.')})
+model_T.eval()
+
+if True:
+  model_state_file = os.path.join('','checkpoint.pth.tar') ## 파일명 변경
+  if os.path.isfile(model_state_file):
+    checkpoint = torch.load(model_state_file, map_location=device)
+    best_mIoU = checkpoint['best_mIoU']
+    model_S.load_state_dict(checkpoint['state_dict'])
+
+start = timeit.default_timer()
+end_epoch = args_s.TRAIN.END_EPOCH + args_s.TRAIN.EXTRA_EPOCH
+num_iters = args_s.TRAIN.END_EPOCH * epoch_iters
+extra_iters = args_s.TRAIN.EXTRA_EPOCH * extra_epoch_iters
+
+for epoch in range(last_epoch, end_epoch):
+  current_trainloader = extra_trainloader if epoch >= args_s.TRAIN.END_EPOCH else trainloader
+  if current_trainloader.sampler is not None and hasattr(current_trainloader.sampler, 'set_epoch'):
+    current_trainloader.sampler.set_epoch(epoch)
+
+  if epoch >= args_s.TRAIN.END_EPOCH:
+    train(args_s, epoch, args_s.TRAIN.END_EPOCH, args_s.TRAIN.EXTRA_EPOCH, extra_epoch_iters, 
+          args_s.TRAIN.EXTRA_LR, extra_iters, extra_trainloader, optimizer, model_S, model_T,
+          criterion_dsn, criterion_cat, writer_dict)
+  else:
+    train(args_s, epoch, args_s.TRAIN.END_EPOCH, epoch_iters, args_s.TRAIN.LR,
+          num_iters, trainloader, optimizer, model_S,model_T,
+          criterion_dsn, criterion_cat, writer_dict) 
+
+  valid_loss, mean_IoU, IoU_array = validate(args_s, testloader, model_S,
+                                             criterion_dsn, writer_dict)
+
+  if args_s.local_rank <= 0:
+    logger.info('=> saving checkpoint to {}'.format(
+                final_output_dir + 'checkpoint.pth.tar'))
+    if mean_IoU > best_mIoU:
+      best_mIoU = mean_IoU
+      torch.save(model_S.state_dict(), os.path.join(final_output_dir, 'best_{:4.0f}.pth'.format(best_mIoU*10000)))
+      torch.save({
+                'epoch': epoch+1,
+                'best_mIoU': best_mIoU,
+                'state_dict': model_S.state_dict(),
+                'optimizer': optimizer.state_dict(),
+            }, os.path.join(final_output_dir,'checkpoint_best.pth.tar'))
+    else:
+      torch.save({
+                'epoch': epoch+1,
+                'best_mIoU': best_mIoU,
+                'state_dict': model_S.state_dict(),
+                'optimizer': optimizer.state_dict(),
+            }, os.path.join(final_output_dir,'checkpoint.pth.tar'))
+
+    msg = 'Loss: {:.3f}, MeanIoU: {: 4.4f}, Best_mIoU: {: 4.4f}'.format(valid_loss, mean_IoU, best_mIoU)
+    logging.info(msg)
+    logging.info(IoU_array)
