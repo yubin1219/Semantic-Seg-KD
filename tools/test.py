@@ -185,13 +185,13 @@ if __name__ == '__main__':
          'RANK': 0,
          'TEST':CfgNode( {'BASE_SIZE': 2048,
           'BATCH_SIZE_PER_GPU': 1,
-          'FLIP_TEST': True,
+          'FLIP_TEST': False,
           'IMAGE_SIZE': [2048, 1024],
           'MODEL_FILE': '',
           'MULTI_SCALE': False,
           'NUM_SAMPLES': None,
           'OUTPUT_INDEX': -1,
-          'SCALE_LIST': [0.5, 0.75, 1.0, 1.25, 1.5, 1.75]}),
+          'SCALE_LIST': [1.0]}),
          'WORKERS': 1}
   test_opts = Namespace(**args_S)
   test(test_opts)
