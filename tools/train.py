@@ -110,7 +110,7 @@ testloader = torch.utils.data.DataLoader(
 
 # criterion
 criterion_dsn = CrossEntropy(args_s, ignore_label=args_s.TRAIN.IGNORE_LABEL, weight=train_dataset.class_weights).to(device)
-criterion_kd = CriterionKD().to(device)
+#criterion_kd = CriterionKD().to(device)
 criterion_cat = CriterionCAT().to(device)
 
 # optimizer
