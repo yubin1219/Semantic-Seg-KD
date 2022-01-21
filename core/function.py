@@ -39,7 +39,7 @@ def train(config, epoch, num_epoch, epoch_iters, base_lr,
           output_t = model_T(images)
 
         loss_dsn = criterion_dsn(output_s[:2], labels.detach())
-        loss_cat_feat = 0.4 * criterion_cat(output_s[2], output_t[2].detach(), output_t[1].detach())
+        loss_cat_feat = 0.4 * criterion_cat(output_s[2], output_t[2].detach(), output_t[1].detach())  # or 0.3
         #loss_at_feat = 8 * criterion_at(output_s[2], output_t[2].detach())
         #loss_kd = 0.8 * criterion_kd(output_s[1], output_t[1].detach())
 
