@@ -1,5 +1,6 @@
 # Class Attention Transfer for Semantic Segmentation
-The overall architecture of Class Attention Transfer as below.
+We generate the class attention maps (CAM) from the feature maps of each student and the teacher network, and then, the student network is guided to mimic the regions that need to be paid more attention.
+The overall architecture of Class Attention Transfer is illustrated as below.
 
 <p align="center">
   <img src="https://user-images.githubusercontent.com/74402562/150624831-8d808898-dbad-4ff3-b695-d824b8d0847c.png" width="60%" height="60%"></img>
