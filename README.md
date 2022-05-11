@@ -1,5 +1,5 @@
 # Class Attention Transfer for Semantic Segmentation
-#### Accepted by IEEE AICAS 2022 (Oral)
+#### Accepted by IEEE AICAS 2022 (Oral) [[Paper]](https://github.com/yubin1219/Semantic-Seg-KD/blob/main/Class%20Attention%20Transfer%20for%20Semantic%20Segmentation.pdf)
 We generate the class attention maps (CAM) from the feature maps of each student and the teacher network, and then, the student network is guided to mimic the regions that need to be paid more attention.
 The overall architecture of Class Attention Transfer is illustrated as below.
 
